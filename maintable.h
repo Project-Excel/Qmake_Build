@@ -32,6 +32,7 @@ class MainTable : public QMainWindow
 
 public:
     MainTable(QWidget *parent = nullptr);
+    void Global_pointer();
     ~MainTable();
 private slots:
 void slotShortcutCtrlC();

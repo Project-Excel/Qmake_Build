@@ -30,6 +30,11 @@
 #include <QUndoGroup>
 #include <QFile>
 #include <QFileDialog>
+QTableWidget * global;
+void MainTable::Global_pointer()
+{
+    global = ui->bee_cell_table;
+}
 MainTable::MainTable(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainTable)
@@ -53,6 +58,7 @@ MainTable::MainTable(QWidget *parent)
                   ui->bee_cell_table->setItem(i, j, new QTableWidgetItem(""));
                 }
             }
+        ui->bee_cell_table->setSortingEnabled(true);
         ui->bee_cell_table->setHorizontalHeaderLabels( bee_cell_table_list);
         //Подключение слотов клавиш
         keyCtrlC = new QShortcut(this);
@@ -219,6 +225,7 @@ void MainTable::slotShortcutCtrlZ()
 
 void MainTable::slotShortcutCtrlF()
 {
+    Global_pointer();
     Search w;
     w.show();
     w.exec();

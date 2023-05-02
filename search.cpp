@@ -40,7 +40,10 @@ Search::Search(QWidget *parent) :
     ui->setupUi(this);
     QStringList search_table_list;
     search_table_list << "Результаты поиска"<<"Индекс";
+    ui->search_table->setColumnCount(2);
     ui->search_table->setHorizontalHeaderLabels(search_table_list);
+    ui->search_table->setSortingEnabled(true);
+    ui->search_table->horizontalHeader()->setStretchLastSection(true);
 }
 
 Search::~Search()
@@ -48,30 +51,36 @@ Search::~Search()
     delete ui;
 }
 
-std::pair<QString,std::pair<int, int>> find_In_Table(QTableWidget* tableWidget, const QString& textToFind)
+void find_In_Table( std::vector<std::pair<QString,std::pair<int, int>>>& arr, QTableWidget* tableWidget, const QString& textToFind)
 {
-    std::pair<QString,std::pair<int, int>> res;
+
     for (int row = 0; row < tableWidget->rowCount(); ++row) {
         for (int column = 0; column < tableWidget->columnCount(); ++column) {
             QTableWidgetItem* item = tableWidget->item(row, column);
             if (item && item->text().contains(textToFind, Qt::CaseInsensitive)) {
                 QString value;
+                std::pair<QString,std::pair<int, int>> res;
                 value = tableWidget->item(row, column)->text();
                 res = std::make_pair(value,std::make_pair(row,column));
+                arr.push_back(res);
             }
         }
     }
-    return res;
 }
-extern QTableWidget *bee_cell_table;
+int count;
+extern QTableWidget *global;
 void Search::on_pushButton_clicked()
 {
     QString search_info = ui->lineEdit->text();
-    std::pair<QString,std::pair<int,int>> res = find_In_Table(bee_cell_table,search_info);
-    int count = 0;
+    std::vector<std::pair<QString,std::pair<int, int>>> arr;
+    find_In_Table(arr,global,search_info);
+    count = 0;
+    for (int i =0 ; i < arr.size() ;i++){
     ui->search_table->insertRow(count);
-    ui->search_table->setItem(count, 0, new QTableWidgetItem(res.first));
-    ui->search_table->setItem(count,1,new QTableWidgetItem(QString::number(res.second.first) + " " + QString::number(res.second.second)));
+    ui->search_table->setItem(count, 0, new QTableWidgetItem(arr[i].first));
+    ui->search_table->setItem(count,1,new QTableWidgetItem(QString::number(arr[i].second.first) + " " + QString::number(arr[i].second.second)));
+    count++;
+    }
 }
 
 
