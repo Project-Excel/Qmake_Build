@@ -14,8 +14,10 @@ class Functions
 private:
     QTableWidget* bee_cell_table;
 
-    struct MyHash {
-        std::size_t operator()(const std::pair<int, int>& p) const {
+    struct MyHash 
+    {
+        std::size_t operator()(const std::pair<int, int>& p) const
+        {
 
             std::size_t h1 = std::hash<int>()(p.first);
             std::size_t h2 = std::hash<int>()(p.second);
