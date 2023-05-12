@@ -27,9 +27,7 @@ private:
     std::unordered_map<std::pair<int, int>, std::pair<std::pair<int, int>, QString>, MyHash> expressions;
     bool needToEvaluate;
     std::pair<int, int> previousClickedCell;
-public:
-    Functions(QTableWidget *);
-
+    
     QString currentCellText;
     int isFunction                      (QString &);
     bool isNumber                       (const QChar &);
@@ -69,7 +67,10 @@ public:
     bool getExpression                  (QString &, QString &);
     bool getDate                        (const QString &, int &, int &, int &);
     bool isCorrectDate                  (const int &, const int &, const int &);
-
+    
+public:
+    Functions(QTableWidget *);
+    
     void cellChanged(const int&, const int&);
     void cellClicked(const int&, const int&);
 };
