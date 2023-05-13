@@ -1,5 +1,7 @@
 #include "functions.h"
 
+#include <QDebug>
+
 Functions::Functions(QTableWidget *t): bee_cell_table(t)
 {
     needToEvaluate = true;
@@ -805,8 +807,9 @@ QString Functions::sa(const QString &currentText)
         --firstColumn.second;
         --secondColumn.second;
 
-        double sum = 0;
+        double sum = 0.0;
         QString buff{};
+        int count = 0;
 
         for (int i = firstColumn.first; i <= secondColumn.first; ++i)
         {
@@ -814,10 +817,11 @@ QString Functions::sa(const QString &currentText)
             {
                 if (bee_cell_table->item(j, i)) buff = bee_cell_table->item(j, i)->text(); else buff = "";
                 if (isNumber(buff)) sum += buff.toDouble();
+                ++count;
             }
         }
 
-        return QString::number(sum / 2.0);
+        return QString::number(sum / count);
     }
 }
 
@@ -873,8 +877,10 @@ QString Functions::choose(const QString &str)
     {
         --column.second;
 
-        return bee_cell_table->item(column.second, column.first)->text();
+        if (bee_cell_table->item(column.second, column.first)) return bee_cell_table->item(column.second, column.first)->text();
     }
+
+    return "";
 }
 
 QString Functions::look(const QString &str)
@@ -1206,12 +1212,12 @@ bool Functions::getString(QString &buffer, QString &condition)
 {
     QString cell{};
 
-    buffer.replace("TRUE", "1");
-    buffer.replace("FALSE", "0");
-
     int x = 0;
     int y = 0;
     int nums = 1;
+
+    buffer.replace("TRUE", "1");
+    buffer.replace("FALSE", "0");
 
     for (int j = 0; j < buffer.length(); ++j)
     {
@@ -1408,11 +1414,13 @@ void Functions::cellChanged(const int& row, const int& column)
         }
         else
         {
+            expressions.erase(std::make_pair(row, column));
+
             for (auto it : expressions)
             {
                 if (it.first != std::make_pair(row, column))
                 {
-                    bee_cell_table->item(it.first.first, it.first.second)->setText(evaluation(it.second.second));
+                    bee_cell_table->item(it.first.first, it.first.second)->setText(it.second.second);
                 }
             }
         }
