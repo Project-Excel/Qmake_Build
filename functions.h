@@ -14,10 +14,8 @@ class Functions
 private:
     QTableWidget* bee_cell_table;
 
-    struct MyHash 
-    {
-        std::size_t operator()(const std::pair<int, int>& p) const
-        {
+    struct MyHash {
+        std::size_t operator()(const std::pair<int, int>& p) const {
 
             std::size_t h1 = std::hash<int>()(p.first);
             std::size_t h2 = std::hash<int>()(p.second);
@@ -29,7 +27,7 @@ private:
     std::unordered_map<std::pair<int, int>, std::pair<std::pair<int, int>, QString>, MyHash> expressions;
     bool needToEvaluate;
     std::pair<int, int> previousClickedCell;
-    
+
     QString currentCellText;
     int isFunction                      (QString &);
     bool isNumber                       (const QChar &);
@@ -48,6 +46,8 @@ private:
     bool correctDaysFunction            (QString, std::pair<int, int> &, std::pair<int, int> &);
     bool correctTrigFunction            (QString, std::pair<int, double> &);
     bool correctExpression              (QString, QString &);
+    bool correctLogFunction             (QString, std::pair<int, double> &);
+
     bool isNumber                       (const QString &);
     QString sum                         (const QString &);
     QString max                         (const QString &);
@@ -61,6 +61,7 @@ private:
     QString days                        (const QString &);
     QString trig                        (const QString &, const int &);
     QString expression                  (const QString &);
+    QString log                         (const QString &);
 
     bool isString                       (const QString &);
     void removeLetters                  (QString &);
@@ -69,12 +70,12 @@ private:
     bool getExpression                  (QString &, QString &);
     bool getDate                        (const QString &, int &, int &, int &);
     bool isCorrectDate                  (const int &, const int &, const int &);
-    
+
 public:
-    Functions(QTableWidget *);
-    
-    void cellChanged(const int&, const int&);
-    void cellClicked(const int&, const int&);
+    Functions                           (QTableWidget *);
+
+    void cellChanged                    (const int&, const int&);
+    void cellClicked                    (const int&, const int&);
 };
 
 class Date
