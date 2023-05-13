@@ -5,7 +5,8 @@ Functions::Functions(QTableWidget *t): bee_cell_table(t)
     needToEvaluate = true;
     previousClickedCell = {-1, -1};
 
-    functions << "=SUM(" << "=MAX(" << "=MIN(" << "=SARIF(" << "=IF(" << "=CHOOSE(" << "=LOOK(" << "=SRCHPOS(" << "=DATE(" << "=DAYS(" << "=SIN(" << "=COS(" << "=TAN(" << "=COT(" << "=";
+    functions << "=SUM(" << "=MAX(" << "=MIN(" << "=SARIF(" << "=IF(" << "=CHOOSE(" << "=LOOK(" << "=SRCHPOS("
+              << "=DATE(" << "=DAYS(" << "=SIN(" << "=COS(" << "=TAN(" << "=COT(" << "=LOG(" << "=";
 }
 
 Date::Date(const int &i1, const int &i2, const int &i3)
@@ -265,7 +266,7 @@ QString Functions::evaluation(QString &currentText)
 
     if (function ^ -1)
     {
-        if ((currentText[currentText.length() - 1] != ')') && (function ^ 14)) currentText += ')';
+        if ((currentText[currentText.length() - 1] != ')') && (function ^ 15)) currentText += ')';
         if (!function)           return sum(currentText);
         else if (function == 1)  return max(currentText);
         else if (function == 2)  return min(currentText);
@@ -280,7 +281,8 @@ QString Functions::evaluation(QString &currentText)
         else if (function == 11) return trig(currentText, 2);
         else if (function == 12) return trig(currentText, 3);
         else if (function == 13) return trig(currentText, 4);
-        else if (function == 14) return expression(currentText);
+        else if (function == 14) return log(currentText);
+        else if (function == 15) return expression(currentText);
    }
 
    return currentText;
@@ -315,7 +317,8 @@ bool Functions::isNumber(const QChar &c)
 
 bool Functions::correctSumFunction(QString str, std::pair<int, int> &col1, std::pair<int, int> &col2)
 {
-    if (!std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[A-Z]{1}[0-9]+\\:{1}[A-Z]{1}[0-9]+\\){1}$"))) return false;
+    if (!std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[A-Z]{1}[0-9]+\\:{1}[A-Z]{1}[0-9]+\\){1}$")))
+        return false;
 
     col1 = {}; col2 = {};
 
@@ -341,7 +344,8 @@ bool Functions::correctSumFunction(QString str, std::pair<int, int> &col1, std::
 
 bool Functions::correctMaxFunction(QString str, std::pair<int, int> &col1, std::pair<int, int> &col2)
 {
-    if (!std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$"))) return false;
+    if (!std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$")))
+        return false;
 
     col1 = {}; col2 = {};
 
@@ -367,7 +371,8 @@ bool Functions::correctMaxFunction(QString str, std::pair<int, int> &col1, std::
 
 bool Functions::correctMinFunction(QString str, std::pair<int, int> &col1, std::pair<int, int> &col2)
 {
-    if (!std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$"))) return false;
+    if (!std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$")))
+        return false;
 
     col1 = {}; col2 = {};
 
@@ -393,7 +398,8 @@ bool Functions::correctMinFunction(QString str, std::pair<int, int> &col1, std::
 
 bool Functions::correctSaFunction(QString str, std::pair<int, int> &col1, std::pair<int, int> &col2)
 {
-    if (!std::regex_match(str.toStdString(), std::regex("^.{6}\\({1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$"))) return false;
+    if (!std::regex_match(str.toStdString(), std::regex("^.{6}\\({1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$")))
+        return false;
 
     col1 = {}; col2 = {};
 
@@ -479,7 +485,8 @@ bool Functions::correctLookFunction(QString str, QString &search, std::pair<int,
                                     std::pair<int, int> &col3, std::pair<int, int> &col4)
 {
     if (!std::regex_match(str.toStdString(),
-         std::regex("^.{5}\\({1}.+\\,{1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\,[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$"))) return false;
+         std::regex("^.{5}\\({1}.+\\,{1}[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\,[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$")))
+        return false;
 
     col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear();
 
@@ -488,25 +495,29 @@ bool Functions::correctLookFunction(QString str, QString &search, std::pair<int,
 
     while (str[i] != ',') { search += str[i]; ++i; } ++i;
 
-    if (str[i].isLetter()) col1.first = str[i].unicode() - 65; else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
+    if (str[i].isLetter()) col1.first = str[i].unicode() - 65;
+    else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
     while (str[i].isNumber()) { col1.second += nums * (str[i].unicode() - 48); nums *= 10; ++i; }
 
     if (nums == 1) { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } nums = 1;
     if (str[i] != ':') { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
 
-    if (str[i].isLetter()) col2.first = str[i].unicode() - 65; else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
+    if (str[i].isLetter()) col2.first = str[i].unicode() - 65;
+    else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
     while(str[i].isNumber()) { col2.second += nums * (str[i].unicode() - 48); nums *= 10; ++i; }
 
     if (nums == 1) { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } nums = 1;
     if (str[i] != ',') { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
 
-    if (str[i].isLetter()) col3.first = str[i].unicode() - 65; else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
+    if (str[i].isLetter()) col3.first = str[i].unicode() - 65;
+    else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
     while (str[i].isNumber()) { col3.second += nums * (str[i].unicode() - 48); nums *= 10; ++i; }
 
     if (nums == 1) { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } nums = 1;
     if (str[i] != ':') { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
 
-    if (str[i].isLetter()) col4.first = str[i].unicode() - 65; else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
+    if (str[i].isLetter()) col4.first = str[i].unicode() - 65;
+    else { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; } ++i;
     while(str[i].isNumber()) { col4.second += nums * (str[i].unicode() - 48); nums *= 10; ++i; }
 
     if (nums == 1) { col1 = {}; col2 = {}; col3 = {}; col4 = {}; search.clear(); return false; }
@@ -520,9 +531,11 @@ bool Functions::correctLookFunction(QString str, QString &search, std::pair<int,
     return true;
 }
 
-bool Functions::correctSearchPositionFunction(QString str, std::pair<int, int> &col1, std::pair<int, int> &col2, QString &search)
+bool Functions::correctSearchPositionFunction(QString str, std::pair<int, int> &col1,
+                                              std::pair<int, int> &col2, QString &search)
 {
-    if (!std::regex_match(str.toStdString(), std::regex("^.{8}\\({1}.+\\,[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$"))) return false;
+    if (!std::regex_match(str.toStdString(), std::regex("^.{8}\\({1}.+\\,[A-Z]{1}[0-9]+\\:[A-Z]{1}[0-9]+\\){1}$")))
+        return false;
 
     col1 = {}; col2 = {}; search.clear();
 
@@ -531,13 +544,15 @@ bool Functions::correctSearchPositionFunction(QString str, std::pair<int, int> &
 
     while (str[i] != ',')  { search += str[i]; ++i; } ++i;
 
-    if (str[i].isLetter()) { col1.first = str[i].unicode() - 65; } else { col1 = {}; col2 = {}; search.clear(); return false; } ++i;
+    if (str[i].isLetter()) { col1.first = str[i].unicode() - 65; }
+    else { col1 = {}; col2 = {}; search.clear(); return false; } ++i;
     while (str[i].isNumber()) { col1.second += nums * (str[i].unicode() - 48); nums *= 10; ++i; }
 
     if (nums == 1) { col1 = {}; col2 = {}; search.clear(); return false; } nums = 1;
     if (str[i] != ':') { col1 = {}; col2 = {}; search.clear(); return false; } ++i;
 
-    if (str[i].isLetter()) { col2.first = str[i].unicode() - 65; } else { col1 = {}; col2 = {}; search.clear(); return false; } ++i;
+    if (str[i].isLetter()) { col2.first = str[i].unicode() - 65; }
+    else { col1 = {}; col2 = {}; search.clear(); return false; } ++i;
     while (str[i].isNumber()) { col2.second += nums * (str[i].unicode() - 48); nums *= 10; ++i; }
 
     if (nums == 1) { col1 = {}; col2 = {}; search.clear(); return false; }
@@ -550,7 +565,9 @@ bool Functions::correctSearchPositionFunction(QString str, std::pair<int, int> &
 
 bool Functions::correctDateFunction(QString str, std::pair<int, int> &c1, std::pair<int, int> &c2, std::pair<int, int> &c3)
 {
-    if (!std::regex_match(str.toStdString(), std::regex("^.{5}\\({1}[A-Z]{1}[0-9]+\\,[A-Z]{1}[0-9]+\\,[A-Z]{1}[0-9]+\\){1}$"))) return false;
+    if (!std::regex_match(str.toStdString(),
+                          std::regex("^.{5}\\({1}[A-Z]{1}[0-9]+\\,[A-Z]{1}[0-9]+\\,[A-Z]{1}[0-9]+\\){1}$")))
+        return false;
 
     c1 = {}; c2 = {}; c3 = {};
 
@@ -579,7 +596,8 @@ bool Functions::correctDateFunction(QString str, std::pair<int, int> &c1, std::p
 
 bool Functions::correctDaysFunction(QString str, std::pair<int, int> &c1, std::pair<int, int> &c2)
 {
-    if (!std::regex_match(str.toStdString(), std::regex("^.{5}\\({1}[A-Z]{1}[0-9]+\\,{1}[A-Z]{1}[0-9]{1}\\){1}$"))) return false;
+    if (!std::regex_match(str.toStdString(), std::regex("^.{5}\\({1}[A-Z]{1}[0-9]+\\,{1}[A-Z]{1}[0-9]{1}\\){1}$")))
+        return false;
 
     c1 = {}; c2 = {};
 
@@ -617,7 +635,8 @@ bool Functions::correctTrigFunction(QString str, std::pair<int, double> &c)
         return true;
     }
 
-    if (std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}-?[0-9.,]+\\){1}$")))
+    if (std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}\\-?[0-9]+[.,]?[0-9]+\\){1}$"))
+            || std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}\\-?[0-9]+\\){1}")))
     {
         c = {-1, 0};
 
@@ -647,17 +666,43 @@ bool Functions::correctExpression(QString str, QString &out)
     return getExpression(str, out);
 }
 
+bool Functions::correctLogFunction(QString str, std::pair<int, double> &c)
+{
+    if (std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[A-Z]{1}[0-9]+\\){1}$")))
+    {
+        c = {};
+
+        int i = 5;
+        int nums = 1;
+
+        if (str[i].isLetter()) { c.first = str[i].unicode() - 65; } ++i;
+        while (str[i].isNumber()) { c.second += nums * (str[i].unicode() - 48); nums *= 10; ++i; }
+
+        return true;
+    }
+
+    if (std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[0-9]+[.,]?[0-9]+\\){1}$"))
+            || std::regex_match(str.toStdString(), std::regex("^.{4}\\({1}[0-9]+\\){1}$")))
+    {
+        QString buffer{};
+
+        int i = 5;
+
+        while (isNumber(str[i])) buffer += str[i++];
+
+        c.first = -1;
+        c.second = buffer.toDouble();
+
+        return true;
+     }
+
+    return false;
+}
+
 bool Functions::isNumber(const QString &str)
 {
-    if (!str.length()) return false;
-
-    int i = 0;
-
-    if (str[i] == '-') ++i;
-
-    for (; i < str.length(); ++i) if (!str[i].isDigit() && str[i] != ',' && str[i] != '.') return false;
-
-    return true;
+    return (std::regex_match(str.toStdString(), std::regex("^\\-?[0-9]+[.,]?[0-9]+$")))
+            || (std::regex_match(str.toStdString(), std::regex("^\\-?[0-9]+$")));
 }
 
 QString Functions::sum(const QString &currentText)
@@ -940,7 +985,8 @@ QString Functions::date(const QString &str)
 
     if (flag) { yearInt = buff.toInt(); } else return "NaN";
 
-    if (bee_cell_table->item(month.second, month.first)) buff = bee_cell_table->item(month.second, month.first)->text(); else buff = "";
+    if (bee_cell_table->item(month.second, month.first)) buff = bee_cell_table->item(month.second, month.first)->text();
+    else buff = "";
 
     for (int i = 0; i < buff.length(); ++i)
     {
@@ -949,7 +995,8 @@ QString Functions::date(const QString &str)
 
     if (flag) { monthInt = buff.toInt(); } else return "NaN";
 
-    if (bee_cell_table->item(day.second, day.first)) buff = bee_cell_table->item(day.second, day.first)->text(); else buff = "";
+    if (bee_cell_table->item(day.second, day.first)) buff = bee_cell_table->item(day.second, day.first)->text();
+    else buff = "";
 
     for (int i = 0; i < buff.length(); ++i)
     {
@@ -1073,6 +1120,26 @@ QString Functions::expression(const QString &str)
     if (!parser.compile(expr.toStdString(), exp)) return "ERROR";
 
     return QString::number(exp.value());
+}
+
+QString Functions::log(const QString &str)
+{
+    std::pair<int, double> c{};
+
+    if (!correctLogFunction(str, c)) return "NaN";
+
+    if (c.first != -1)
+    {
+        QString cell{};
+        --c.second;
+
+        if (bee_cell_table->item(c.second, c.first)) cell = bee_cell_table->item(c.second, c.first)->text();
+
+        if (isNumber(cell)) return QString::number(std::log(cell.toDouble()));
+        return "NaN";
+    }
+
+    return QString::number(std::log(c.second));
 }
 
 bool Functions::isString(const QString &s)
@@ -1335,7 +1402,8 @@ void Functions::cellChanged(const int& row, const int& column)
             {
                 expressions.erase(std::make_pair(row, column));
 
-                expressions.insert(std::make_pair(std::make_pair(row, column), std::make_pair(std::make_pair(row, column), currentText)));
+                expressions.insert(std::make_pair(std::make_pair(row, column),
+                                                  std::make_pair(std::make_pair(row, column), currentText)));
             }
         }
         else
