@@ -1,5 +1,5 @@
 QT       += core gui
-
+QT += testlib
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
@@ -11,10 +11,12 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     maintable.cpp \
-    search.cpp
+    search.cpp \
+    test.cpp
 HEADERS += \
     maintable.h \
-    search.h
+    search.h \
+    test.h
 FORMS += \
     maintable.ui \
     search.ui

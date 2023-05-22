@@ -22,23 +22,25 @@
 #include <windows.h>
 #include <vector>
 #include <sstream>
+#include <stack>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainTable; }
 QT_END_NAMESPACE
-
 class MainTable : public QMainWindow
 {
     Q_OBJECT
-
+signals:
+    void itemChanged(QTableWidgetItem *item);
 public:
     MainTable(QWidget *parent = nullptr);
     void Global_pointer();
     ~MainTable();
-private slots:
+private slots :
 void slotShortcutCtrlC();
 void slotShortcutCtrlV();
 void slotShortcutCtrlZ();
 void slotShortcutCtrlF();
+void slotShortcutCtrlY();
 void slotDelete();
 void showContextMenu(QPoint);
 void ChangeBoard();
@@ -54,6 +56,8 @@ void on_pushButton_10_clicked();
 void on_pushButton_11_clicked();
 
 
+void on_bee_cell_table_itemChanged(QTableWidgetItem *item);
+
 private:
     Ui::MainTable *ui;
     QShortcut *keyCtrlC;
@@ -62,6 +66,7 @@ private:
     QShortcut *keyCtrl;
     QShortcut *keyCtrlZ;
     QShortcut *keyCtrlF;
+    QShortcut *keyCtrlY;
 };
 
 #endif

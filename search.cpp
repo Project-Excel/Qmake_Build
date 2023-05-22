@@ -44,20 +44,21 @@ Search::Search(QWidget *parent) :
     ui->search_table->setHorizontalHeaderLabels(search_table_list);
     ui->search_table->setSortingEnabled(true);
     ui->search_table->horizontalHeader()->setStretchLastSection(true);
+    ui->search_table->setEditTriggers(QTableWidget::NoEditTriggers);
 }
-
 Search::~Search()
 {
     delete ui;
 }
-
 void find_In_Table( std::vector<std::pair<QString,std::pair<int, int>>>& arr, QTableWidget* tableWidget, const QString& textToFind)
 {
 
     for (int row = 0; row < tableWidget->rowCount(); ++row) {
-        for (int column = 0; column < tableWidget->columnCount(); ++column) {
+        for (int column = 0; column < tableWidget->columnCount(); ++column)
+        {
             QTableWidgetItem* item = tableWidget->item(row, column);
-            if (item && item->text().contains(textToFind, Qt::CaseInsensitive)) {
+            if (item && item->text().contains(textToFind, Qt::CaseInsensitive))
+            {
                 QString value;
                 std::pair<QString,std::pair<int, int>> res;
                 value = tableWidget->item(row, column)->text();
@@ -69,18 +70,21 @@ void find_In_Table( std::vector<std::pair<QString,std::pair<int, int>>>& arr, QT
 }
 int count;
 extern QTableWidget *global;
+std::vector<std::pair<QString,std::pair<int, int>>> arr;
 void Search::on_pushButton_clicked()
 {
+    ui->search_table->setRowCount(0);
     QString search_info = ui->lineEdit->text();
-    std::vector<std::pair<QString,std::pair<int, int>>> arr;
     find_In_Table(arr,global,search_info);
     count = 0;
-    for (int i =0 ; i < arr.size() ;i++){
+    for (int i =0 ; i < arr.size() ;i++)
+    {
     ui->search_table->insertRow(count);
     ui->search_table->setItem(count, 0, new QTableWidgetItem(arr[i].first));
-    ui->search_table->setItem(count,1,new QTableWidgetItem(QString::number(arr[i].second.first) + " " + QString::number(arr[i].second.second)));
+    ui->search_table->setItem(count,1,new QTableWidgetItem("Строка : " + QString::number(arr[i].second.first) + " " + "Столбец : " + QString::number(arr[i].second.second)));
+    global->item(arr[i].second.first,arr[i].second.second)->setSelected(true);
     count++;
     }
+    arr.clear();
+
 }
-
-
