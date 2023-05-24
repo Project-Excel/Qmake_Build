@@ -29,8 +29,6 @@ QT_END_NAMESPACE
 class MainTable : public QMainWindow
 {
     Q_OBJECT
-signals:
-    void itemChanged(QTableWidgetItem *item);
 public:
     MainTable(QWidget *parent = nullptr);
     void Global_pointer();
@@ -50,14 +48,12 @@ void Change_font();
 void Change_Color();
 void Change_Color_text();
 void on_pushButton_12_clicked();
-
 void on_pushButton_10_clicked();
-
 void on_pushButton_11_clicked();
-
-
 void on_bee_cell_table_itemChanged(QTableWidgetItem *item);
-
+void on_tabWidget_2_tabBarClicked(int index);
+void on_bee_cell_table_2_itemChanged(QTableWidgetItem *item);
+void itemChanged(QTableWidgetItem *item);
 private:
     Ui::MainTable *ui;
     QShortcut *keyCtrlC;

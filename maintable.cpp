@@ -32,41 +32,71 @@
 #include <QFileDialog>
 #include <QtTest/QTest>
 #include <stack>
+#include <QVBoxLayout>
+#include <QLabel>
 std::stack <std::pair<std::pair<std::pair<int,int>,std::pair<int,int>> , std::pair<QString,QString>>> undo;
 std::stack <std::pair<std::pair<std::pair<int,int>,std::pair<int,int>> , std::pair<QString,QString>>> redo;
-
+std::vector<QTableWidget*> tables;
+int Tab_Count = 1;
 QTableWidget * global;
+QTableWidget * pointer;
 void MainTable::Global_pointer()
 {
-    global = ui->bee_cell_table;
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    global = tabl;
 }
 MainTable::MainTable(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainTable)
 {
             ui->setupUi(this);
-            ui->bee_cell_table->setRowCount(4096);
-            ui->bee_cell_table->setColumnCount(4096);
+            ui->bee_cell_table->setRowCount(1024);
+            ui->bee_cell_table->setColumnCount(1024);
             ui->bee_cell_table->setContextMenuPolicy(Qt::CustomContextMenu);
             connect(ui->bee_cell_table, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showContextMenu(QPoint)));
+            ui->bee_cell_table_2->setRowCount(1024);
+            ui->bee_cell_table_2->setColumnCount(1024);
+            ui->bee_cell_table_2->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(ui->bee_cell_table_2, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showContextMenu(QPoint)));
             QStringList bee_cell_table_list;
             bee_cell_table_list << "A"<<"B"<<"C"<<"D"<<"E"<<"F"<<"G"<<"H"<<"I"<<"J"<<"K"<<"L"<<"M"<<"N"<<"O"<<"P"<<"Q"<<"R"<<"S"<<"T"<<"U"<<"V"<<"W"<<"X"<<"Y"<<"Z";
-            for (int i =1 ; i <= 163 ; i++)
+            for (int i =1 ; i <= 88 ; i++)
             {
                 bee_cell_table_list << "A"+ QString::number(i) <<"B" + QString::number(i)<<"C" + QString::number(i) <<"D" + QString::number(i) <<"E" +QString::number(i)<<"F" + QString::number(i)<<"G" + QString::number(i)<<"H" + QString::number(i)<<"I" + QString::number(i)<<"J" + QString::number(i)<<"K" + QString::number(i)<<"L" + QString::number(i)<<"M" + QString::number(i)<<"N" + QString::number(i)<<"O" + QString::number(i)<<"P" + QString::number(i)<<"Q"+ QString::number(i)<<"R"+ QString::number(i)<<"S" + QString::number(i)<<"T" + QString::number(i)<<"U" + QString::number(i)<<"V" + QString::number(i)<<"W" + QString::number(i)<<"X" + QString::number(i)<<"Y" + QString::number(i)<<"Z" + QString::number(i);
             }
             ui->bee_cell_table->blockSignals(true);
-            for (int i = 0 ; i <=4096;i++)
+            ui->bee_cell_table_2->blockSignals(true);
+            for (int i = 0 ; i <=1024;i++)
             {
-                for (int j =0 ; j<=4096 ; j++)
+                for (int j =0 ; j<=1024 ; j++)
                 {
                   //Заполнение ячеек таблицы пустыми значениями
-                  ui->bee_cell_table->setItem(i, j, new QTableWidgetItem(""));
+                  ui->bee_cell_table_2->setItem(i, j, new QTableWidgetItem(""));
                 }
             }
         //ui->bee_cell_table->item(2,2)->setSelected(true);
         ui->bee_cell_table->setSortingEnabled(true);
+        ui->bee_cell_table_2->setSortingEnabled(true);
         ui->bee_cell_table->setHorizontalHeaderLabels( bee_cell_table_list);
+        ui->bee_cell_table_2->setHorizontalHeaderLabels( bee_cell_table_list);
+        for (int i = 0; i < 2; i++)
+        {
+            QTabWidget *tabWidget = ui->tabWidget_2;
+            QTableWidget * tableWidget;
+            if (!i)
+            {
+                tableWidget = ui->bee_cell_table;
+            }
+            else
+            {
+                tableWidget = ui->bee_cell_table_2;
+            }
+            if(tableWidget)
+            tables.push_back(tableWidget);
+        }
+        qDebug()<<"Size---"<<QString::number(tables.size());
         //Подключение слотов клавиш
         keyCtrlC = new QShortcut(this);
         keyCtrlC->setKey(Qt::CTRL | Qt::Key_C);
@@ -88,17 +118,20 @@ MainTable::MainTable(QWidget *parent)
         Delete->setKey(Qt::Key_Delete );
         connect (Delete,SIGNAL(activated()),this,SLOT(slotDelete()));
         ui->bee_cell_table->blockSignals(false);
+        ui->bee_cell_table_2->blockSignals(false);
 }
 MainTable::~MainTable()
 {
     delete ui;
 }
-
 //Реализация CTRL+C
 void MainTable::slotShortcutCtrlC()
 {
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
     QClipboard * clipboard = QApplication::clipboard();
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QList<QTableWidgetItem*> items =tabl->selectedItems();
     QString Buffer;
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
@@ -110,13 +143,13 @@ void MainTable::slotShortcutCtrlC()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -141,13 +174,13 @@ void MainTable::slotShortcutCtrlC()
        {
            for (int j = Column_mn ; j<=Column_mx;j++)
            {
-               if (ui->bee_cell_table->item(i,j)->text()!= "")
+               if (tabl->item(i,j)->text()!= "")
                {
                if (j != Column_mx){
-               Buffer +=ui->bee_cell_table->item(i,j)->text() + "\t";
+               Buffer +=tabl->item(i,j)->text() + "\t";
                }
                else {
-                   Buffer +=ui->bee_cell_table->item(i,j)->text();
+                   Buffer +=tabl->item(i,j)->text();
                }
                }
                else
@@ -167,9 +200,12 @@ void MainTable::slotShortcutCtrlC()
 // РЕАЛИЗАЦИЯ CTRl+V
 void MainTable::slotShortcutCtrlV()
 {
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    QList<QTableWidgetItem*> items =tabl->selectedItems();
     QClipboard* c_board=QApplication::clipboard();
     QString Buffer = c_board->text();
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -180,13 +216,13 @@ void MainTable::slotShortcutCtrlV()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -227,7 +263,7 @@ void MainTable::slotShortcutCtrlV()
                 i++;
             }
             i--;
-            ui->bee_cell_table->setItem(Row, Column, new QTableWidgetItem(QString::fromStdString(reserve)));
+            tabl->setItem(Row, Column, new QTableWidgetItem(QString::fromStdString(reserve)));
         }
     }
 }
@@ -235,9 +271,12 @@ void MainTable::slotShortcutCtrlZ()
 {
 if (!undo.empty())
 {
-    ui->bee_cell_table->blockSignals(true);
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    tabl->blockSignals(true);
     if (undo.top().first.first.first ==undo.top().first.second.first && undo.top().first.first.second ==undo.top().first.second.second){
-    ui->bee_cell_table->item(undo.top().first.first.first,undo.top().first.second.second)->setText(undo.top().second.first);
+    tabl->item(undo.top().first.first.first,undo.top().first.second.second)->setText(undo.top().second.first);
     redo.push(std::make_pair(std::make_pair(undo.top().first.first,undo.top().first.second), std::make_pair(undo.top().second.first,undo.top().second.second)));
     }
     else
@@ -250,16 +289,15 @@ if (!undo.empty())
         {
             for (int j = Column_mn; j <=Column_mx;j++)
             {
-                ui->bee_cell_table->setSpan(i,j,1,1);
+                tabl->setSpan(i,j,1,1);
             }
         }
     redo.push(std::make_pair(std::make_pair(std::make_pair(Row_mn,Column_mn),std::make_pair(Row_mx,Column_mx)), std::make_pair("","")));
     }
     undo.pop();
-    ui->bee_cell_table->blockSignals(false);
+    tabl->blockSignals(false);
+    }
 }
-}
-
 void MainTable::slotShortcutCtrlF()
 {
     Global_pointer();
@@ -267,15 +305,17 @@ void MainTable::slotShortcutCtrlF()
     w.show();
     w.exec();
 }
-
 void MainTable::slotShortcutCtrlY()
 {
     if (!redo.empty())
     {
-        ui->bee_cell_table->blockSignals(true);
+        QTabWidget *tabWidget = ui->tabWidget_2;
+        int currentIndex = tabWidget->currentIndex();
+        QTableWidget * tabl = tables[currentIndex];
+        tabl->blockSignals(true);
         if (redo.top().first.first.first ==redo.top().first.second.first && redo.top().first.first.second ==redo.top().first.second.second)
         {
-        ui->bee_cell_table->item(redo.top().first.first.first,redo.top().first.first.second)->setText(redo.top().second.second);
+        tabl->item(redo.top().first.first.first,redo.top().first.first.second)->setText(redo.top().second.second);
         undo.push(std::make_pair(std::make_pair(redo.top().first.first,redo.top().first.second), std::make_pair(redo.top().second.first,redo.top().second.second)));
         }
         else
@@ -285,16 +325,19 @@ void MainTable::slotShortcutCtrlY()
             int Row_mx = redo.top().first.second.first;
             int Column_mx = redo.top().first.second.second;
             undo.push(std::make_pair(std::make_pair(std::make_pair(Row_mn,Column_mn),std::make_pair(Row_mx,Column_mx)), std::make_pair("","")));
-            ui->bee_cell_table->setSpan(Row_mn,Column_mn,Row_mx-Row_mn+1,Column_mx-Column_mn+1);
+            tabl->setSpan(Row_mn,Column_mn,Row_mx-Row_mn+1,Column_mx-Column_mn+1);
         }
         redo.pop();
-        ui->bee_cell_table->blockSignals(false);
+        tabl->blockSignals(false);
     }
 }
 //УДаление значений из выбранной области
 void MainTable::slotDelete()
 {
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     QString Buffer;
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
@@ -305,13 +348,13 @@ void MainTable::slotDelete()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -333,14 +376,13 @@ void MainTable::slotDelete()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->setItem(i, j, new QTableWidgetItem(""));
+             tabl->setItem(i, j, new QTableWidgetItem(""));
         }
     }
 }
 void MainTable::showContextMenu(QPoint pos)
 {
     QMenu* menu = new QMenu(this);
-    QAction* editBoard = new QAction(tr("Изменить границы"), this);
     QAction* Span = new QAction(tr("Объденить ячейки"), this);
     connect(Span, SIGNAL(triggered()), this, SLOT(Spans()));
     QAction* deleteCell = new QAction(tr("Очистить ячейки"), this);
@@ -351,7 +393,6 @@ void MainTable::showContextMenu(QPoint pos)
     connect(editColor, SIGNAL(triggered()), this, SLOT(Change_Color()));
     QAction* editColor_text = new QAction(tr("Изменить цвет текста ячейки"), this);
     connect(editColor_text, SIGNAL(triggered()), this, SLOT(Change_Color_text()));
-    menu->addAction(editBoard);
     menu->addAction(Span);
     menu->addAction(deleteCell);
     menu->addAction(editFont);
@@ -405,7 +446,10 @@ void MainTable::ChangeBoard()
 }
 void MainTable::Spans()
 {
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     QString Buffer;
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
@@ -416,13 +460,13 @@ void MainTable::Spans()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -445,13 +489,13 @@ void MainTable::Spans()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-            if (ui->bee_cell_table->item(i,j)->text()!= "")
+            if (tabl->item(i,j)->text()!= "")
             {
             if (j != Column_mx){
-            Buffer +=ui->bee_cell_table->item(i,j)->text() + "\t";
+            Buffer +=tabl->item(i,j)->text() + "\t";
             }
             else {
-                Buffer +=ui->bee_cell_table->item(i,j)->text();
+                Buffer +=tabl->item(i,j)->text();
             }
             }
             else
@@ -466,12 +510,15 @@ void MainTable::Spans()
         Buffer+="\n";
         }
     }
-    undo.push(std::make_pair(std::make_pair(std::make_pair(Row_mn,Column_mn),std::make_pair(Row_mx,Column_mx)), std::make_pair(Buffer,ui->bee_cell_table->item(Row_mn,Column_mn)->text())));
-    ui->bee_cell_table->setSpan(Row_mn,Column_mn,Row_mx-Row_mn+1,Column_mx-Column_mn+1);
+    undo.push(std::make_pair(std::make_pair(std::make_pair(Row_mn,Column_mn),std::make_pair(Row_mx,Column_mx)), std::make_pair(Buffer,tabl->item(Row_mn,Column_mn)->text())));
+    tabl->setSpan(Row_mn,Column_mn,Row_mx-Row_mn+1,Column_mx-Column_mn+1);
 }
 void MainTable::Delete_cell()
 {
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -481,13 +528,13 @@ void MainTable::Delete_cell()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -509,15 +556,18 @@ void MainTable::Delete_cell()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->setItem(i, j, new QTableWidgetItem(""));
+             tabl->setItem(i, j, new QTableWidgetItem(""));
         }
     }
 }
 void MainTable::Change_font()
 {
     bool ok ;
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
     QFont font = QFontDialog::getFont(&ok,QFont ("Segoe UI", 9));
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -527,13 +577,13 @@ void MainTable::Change_font()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -555,14 +605,17 @@ void MainTable::Change_font()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->item(i, j)->setFont(font);
+             tabl->item(i, j)->setFont(font);
         }
     }
 }
 void MainTable::Change_Color()
 {
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
     QColor color = QColorDialog::getColor(Qt::white, this);
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -572,13 +625,13 @@ void MainTable::Change_Color()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -600,15 +653,17 @@ void MainTable::Change_Color()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->item(i, j)->setBackground(QBrush(color));
+             tabl->item(i, j)->setBackground(QBrush(color));
         }
     }
 }
-
 void MainTable::Change_Color_text()
 {
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
     QColor color = QColorDialog::getColor(Qt::black, this);
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -618,13 +673,13 @@ void MainTable::Change_Color_text()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -646,13 +701,16 @@ void MainTable::Change_Color_text()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->item(i, j)->setForeground(color);
+             tabl->item(i, j)->setForeground(color);
         }
     }
 }
 void MainTable::on_pushButton_12_clicked()
 {
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -662,13 +720,13 @@ void MainTable::on_pushButton_12_clicked()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -690,13 +748,16 @@ void MainTable::on_pushButton_12_clicked()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->item(i, j)->setTextAlignment(Qt::AlignRight);
+             tabl->item(i, j)->setTextAlignment(Qt::AlignRight);
         }
     }
 }
 void MainTable::on_pushButton_10_clicked()
 {
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    QList<QTableWidgetItem*> items =  tabl->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -706,13 +767,13 @@ void MainTable::on_pushButton_10_clicked()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn =  tabl->row(items.at(i));
+       Column_mn =  tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row =  tabl->row(items.at(i));
+       Column =  tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -734,13 +795,16 @@ void MainTable::on_pushButton_10_clicked()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->item(i, j)->setTextAlignment(Qt::AlignLeft);
+              tabl->item(i, j)->setTextAlignment(Qt::AlignLeft);
         }
     }
 }
 void MainTable::on_pushButton_11_clicked()
 {
-    QList<QTableWidgetItem*> items = ui->bee_cell_table->selectedItems();
+    QTabWidget *tabWidget = ui->tabWidget_2;
+    int currentIndex = tabWidget->currentIndex();
+    QTableWidget * tabl = tables[currentIndex];
+    QList<QTableWidgetItem*> items = tabl->selectedItems();
     int Row_mn =0 , Row_mx =0;
     int Column_mn =0 , Column_mx = 0;
     int count = items.count();
@@ -750,13 +814,13 @@ void MainTable::on_pushButton_11_clicked()
     {
        if (i == 0)
        {
-       Row_mn = ui->bee_cell_table->row(items.at(i));
-       Column_mn = ui->bee_cell_table->column(items.at(i));
+       Row_mn = tabl->row(items.at(i));
+       Column_mn = tabl->column(items.at(i));
        Column_mx = Column_mn;
        Row_mx = Row_mn;
        }
-       Row = ui->bee_cell_table->row(items.at(i));
-       Column = ui->bee_cell_table->column(items.at(i));
+       Row = tabl->row(items.at(i));
+       Column = tabl->column(items.at(i));
        if (Column < Column_mn )
        {
            Column_mn = Column;
@@ -778,7 +842,7 @@ void MainTable::on_pushButton_11_clicked()
     {
         for (int j = Column_mn ; j<=Column_mx;j++)
         {
-             ui->bee_cell_table->item(i, j)->setTextAlignment(Qt::AlignCenter);
+             tabl->item(i, j)->setTextAlignment(Qt::AlignCenter);
         }
     }
 }
@@ -795,4 +859,69 @@ void MainTable::on_bee_cell_table_itemChanged(QTableWidgetItem *item)
     undo.push(std::make_pair(std::make_pair(std::make_pair(row,column),std::make_pair(row,column)), std::make_pair(previousText,currentText)));
     }
 }
+void MainTable::itemChanged(QTableWidgetItem *item)
+{
+    int row = item->row();
+    int column = item->column();
+    QString text = item->text();
+    QString currentText = item->text();
+    QString previousText = item->data(Qt::UserRole).toString();
+    item->setData(Qt::UserRole, currentText);
+    if (currentText != "" && currentText !=previousText )
+    {
+    undo.push(std::make_pair(std::make_pair(std::make_pair(row,column),std::make_pair(row,column)), std::make_pair(previousText,currentText)));
+    }
+}
+void MainTable::on_tabWidget_2_tabBarClicked(int index)
+{
+    qDebug()<<QString::number(index);
+    if (index == Tab_Count+1)
+    {
+        ui->tabWidget_2->removeTab(index);
 
+    QWidget *tab1 = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(tab1);
+    QTableWidget *bee_cell_table_index = new QTableWidget (tab1);
+    bee_cell_table_index->setRowCount(1024);
+    bee_cell_table_index->setColumnCount(1024);
+    bee_cell_table_index->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(bee_cell_table_index, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showContextMenu(QPoint)));
+    connect(bee_cell_table_index, SIGNAL(itemChanged(QTableWidgetItem*)), SLOT(itemChanged(QTableWidgetItem*)));
+    QStringList bee_cell_table_list;
+    bee_cell_table_list << "A"<<"B"<<"C"<<"D"<<"E"<<"F"<<"G"<<"H"<<"I"<<"J"<<"K"<<"L"<<"M"<<"N"<<"O"<<"P"<<"Q"<<"R"<<"S"<<"T"<<"U"<<"V"<<"W"<<"X"<<"Y"<<"Z";
+    for (int i =1 ; i <= 88 ; i++)
+    {
+        bee_cell_table_list << "A"+ QString::number(i) <<"B" + QString::number(i)<<"C" + QString::number(i) <<"D" + QString::number(i) <<"E" +QString::number(i)<<"F" + QString::number(i)<<"G" + QString::number(i)<<"H" + QString::number(i)<<"I" + QString::number(i)<<"J" + QString::number(i)<<"K" + QString::number(i)<<"L" + QString::number(i)<<"M" + QString::number(i)<<"N" + QString::number(i)<<"O" + QString::number(i)<<"P" + QString::number(i)<<"Q"+ QString::number(i)<<"R"+ QString::number(i)<<"S" + QString::number(i)<<"T" + QString::number(i)<<"U" + QString::number(i)<<"V" + QString::number(i)<<"W" + QString::number(i)<<"X" + QString::number(i)<<"Y" + QString::number(i)<<"Z" + QString::number(i);
+    }
+    ui->bee_cell_table->blockSignals(true);
+    for (int i = 0 ; i <=1024;i++)
+    {
+        for (int j =0 ; j<=1024; j++)
+        {
+          bee_cell_table_index->setItem(i, j, new QTableWidgetItem(""));
+        }
+    }
+    bee_cell_table_index->resize(1751,761);
+    bee_cell_table_index->setHorizontalHeaderLabels( bee_cell_table_list);
+    Tab_Count++;
+    layout->addWidget(bee_cell_table_index);
+    ui->tabWidget_2->addTab(tab1,"Лист" + QString::number(index+1));
+    QWidget *tab2 = new QWidget();
+    ui->tabWidget_2->addTab(tab2,"Новый лист");
+    tables.push_back(bee_cell_table_index);
+    }
+}
+void MainTable::on_bee_cell_table_2_itemChanged(QTableWidgetItem *item)
+{
+    int row = item->row();
+    int column = item->column();
+    QString text = item->text();
+    QString currentText = item->text();
+    QString previousText = item->data(Qt::UserRole).toString();
+    qDebug()<<"CUR--"<<currentText ;
+    item->setData(Qt::UserRole, currentText);
+    if (currentText != "" && currentText !=previousText )
+    {
+    undo.push(std::make_pair(std::make_pair(std::make_pair(row,column),std::make_pair(row,column)), std::make_pair(previousText,currentText)));
+    }
+}

@@ -139,35 +139,99 @@
      </attribute>
     </widget>
    </widget>
-   <widget class="QTableWidget" name="bee_cell_table">
+   <widget class="QTabWidget" name="tabWidget_2">
     <property name="geometry">
      <rect>
-      <x>-40</x>
-      <y>180</y>
-      <width>1871</width>
-      <height>1061</height>
+      <x>0</x>
+      <y>140</y>
+      <width>1761</width>
+      <height>801</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>Segoe UI</family>
-     </font>
+    <property name="currentIndex">
+     <number>1</number>
     </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QTableWidget::item:selected{ background-color:  #ffff00} QTableWidget::item:selected { color:black }</string>
-    </property>
-    <property name="verticalScrollMode">
-     <enum>QAbstractItemView::ScrollPerItem</enum>
-    </property>
-    <property name="gridStyle">
-     <enum>Qt::CustomDashLine</enum>
-    </property>
-    <attribute name="horizontalHeaderMinimumSectionSize">
-     <number>35</number>
-    </attribute>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Лист 1</string>
+     </attribute>
+     <widget class="QTableWidget" name="bee_cell_table">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1751</width>
+        <height>761</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Segoe UI</family>
+       </font>
+      </property>
+      <property name="cursor" stdset="0">
+       <cursorShape>CrossCursor</cursorShape>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTableWidget::item:selected{ background-color:  #ffff00} QTableWidget::item:selected { color:black }</string>
+      </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerItem</enum>
+      </property>
+      <property name="gridStyle">
+       <enum>Qt::CustomDashLine</enum>
+      </property>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>35</number>
+      </attribute>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Лист 2</string>
+     </attribute>
+     <widget class="QTableWidget" name="bee_cell_table_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1751</width>
+        <height>761</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Segoe UI</family>
+       </font>
+      </property>
+      <property name="cursor" stdset="0">
+       <cursorShape>CrossCursor</cursorShape>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTableWidget::item:selected{ background-color:  #ffff00} QTableWidget::item:selected { color:black }</string>
+      </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerItem</enum>
+      </property>
+      <property name="gridStyle">
+       <enum>Qt::CustomDashLine</enum>
+      </property>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>35</number>
+      </attribute>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Новый лист</string>
+     </attribute>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
